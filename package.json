@@ -17,8 +17,9 @@
     "docker-loghose": "^0.4.0",
     "docker-stats": "^0.2.0",
     "end-of-stream": "^1.1.0",
-    "logentries-api": "https://github.com/AvianFlu/logentries-api/tarball/master",
     "minimist": "^1.1.0",
-    "through2": "^0.6.3"
+    "through2": "^0.6.3",
+    "request": "~2.34.0",
+    "array.prototype.find": "~0.1.1"
   }
 }

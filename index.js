@@ -8,6 +8,7 @@ var minimist = require('minimist');
 var allContainers = require('docker-allcontainers');
 var statsFactory = require('docker-stats');
 var logFactory = require('docker-loghose');
+var Logentries = require('./leapi');
 
 function connect(opts) {
   var stream;
@@ -91,6 +92,62 @@ function start(opts) {
   }
 }
 
+function getTokens(loghost, logname, accountKey, done) {
+  var leApi = Logentries({accountKey: accountKey});
+  var tokens = {};
+  var stop;
+
+  leApi.getHost(loghost, gotHost);
+
+  function gotHost(err, result) {
+    if (err || !result.logs) {
+      console.dir(result);
+      console.error('Could not look up host: %s', err.message);
+      return leApi.registerHost(loghost, gotNewHost);
+    }
+    result.logs.forEach(function (log) {
+      if (log.name === logname) {
+        tokens.logs = log.token;
+      }
+      else if (log.name === logname + " stats") {
+        tokens.stats = log.stats;
+      }
+    });
+    console.dir(tokens);
+    if (!tokens.logs) makeLog(result.key, logname, cb);
+    if (!tokens.stats) makeStatsLog(result.key, logname, cb);
+  }
+
+  function gotNewHost(err, result) {
+    if (err) return done(err);
+    makeLog(result.key, logname, cb);
+    makeStatsLog(result.key, logname, cb);
+  }
+
+  function makeLog(hostKey, name, next) {
+    leApi.createLog(name, "token", hostKey, function (err, result) {
+      if (err) return next(err);
+      tokens.logs = result.token;
+    });
+  }
+
+  function makeStatsLog(hostKey, name, next) {
+    leApi.createLog(name + " stats", "token", hostKey, function (err, result) {
+      if (err) return next(err);
+      tokens.stats = result.token;
+    });
+  }
+
+  function cb(err) {
+    if (stop) return;
+    if (err) {
+      stop = true;
+      return done(err);
+    }
+    if (tokens.logs && tokens.stats) return done(null, tokens);
+  }
+}
+
 function cli() {
   var argv = minimist(process.argv.slice(2), {
     boolean: ['json', 'stats'],
@@ -98,6 +155,8 @@ function cli() {
       'token': 't',
       'logstoken': 'l',
       'statstoken': 'k',
+      'loghost': 'h',
+      'logname': 'n',
       'secure': 's',
       'json': 'j',
       'add': 'a'
@@ -109,8 +168,9 @@ function cli() {
     }
   });
 
-  if (!(argv.token || (argv.logstoken && argv.statstoken))) {
+  if (!(argv.token || (argv.logstoken && argv.statstoken) || (argv.loghost && argv.logname && argv.acct))) {
     console.log('Usage: docker-logentries [-l LOGSTOKEN] [-k STATSTOKEN]\n' +
+                '                         [-h LOGHOST] [-n LOGNAME]\n' +
                 '                         [-t TOKEN] [--secure] [--json]\n' +
                 '                         [--no-stats] [-a KEY=VALUE]');
     process.exit(1);
@@ -126,11 +186,16 @@ function cli() {
     return acc
   }, {});
 
-  start(argv);
+  if (argv.logname && argv.loghost && argv.acct) {
+    getTokens(argv.loghost, argv.logname, argv.acct, function (err, tokens) {
+      if (err) throw err;
+      console.log('Got tokens: %s %s', tokens.logs, tokens.stats);
+      argv.logstoken = tokens.logs;
+      argv.statstoken = tokens.stats;
+      start(argv);
+    });
+  }
+  else start(argv);
 }
 
-module.exports = start;
-
-if (require.main === module) {
-  cli();
-}
+cli();
