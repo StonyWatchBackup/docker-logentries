@@ -94,7 +94,7 @@ function start(opts) {
 
 function getTokens(loghost, logname, accountKey, done) {
   var leApi = Logentries({accountKey: accountKey});
-  var tokens = {};
+  var tokens = Object.create(null);
   var stop;
 
   leApi.getHost(loghost, gotHost);
@@ -118,12 +118,16 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function gotNewHost(err, result) {
-    if (err) return done(err);
+    if (err) {
+      console.dir(err);
+      return done(err);
+    }
     makeLog(result.key, logname, cb);
     makeStatsLog(result.key, logname, cb);
   }
 
   function makeLog(hostKey, name, next) {
+    console.log('makeLog: %s %s', hostKey, name);
     leApi.createLog(name, "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.logs = result.token;
@@ -131,6 +135,7 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function makeStatsLog(hostKey, name, next) {
+    console.log('makeStatsLog: %s %s', hostKey, name);
     leApi.createLog(name + " stats", "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.stats = result.token;
@@ -138,6 +143,7 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function cb(err) {
+    console.log('cb! %s %s %j', err, stop, tokens);
     if (stop) return;
     if (err) {
       stop = true;
