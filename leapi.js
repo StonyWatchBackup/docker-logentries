@@ -25,7 +25,6 @@ function api(data, cb) {
 module.exports = function(options) {
   return {
     getHosts: function(cb) {
-      if (!cb) throw "IT WAS GETHOSTS"
       api({
         request: 'get_user',
         load_hosts: 1,
@@ -45,7 +44,6 @@ module.exports = function(options) {
     },
 
     registerHost: function(host, cb) {
-      if (!cb) throw "IT WAS REGISTERHOST"
       api({
         request: 'register',
         user_key: options.accountKey,
@@ -55,7 +53,6 @@ module.exports = function(options) {
     },
 
     createLog: function(name, type, hostKey, cb) {
-      if (!cb) throw "IT WAS CREATELOG"
       api({
         request: 'new_log',
         user_key: options.accountKey,
