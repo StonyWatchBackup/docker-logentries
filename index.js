@@ -100,9 +100,8 @@ function getTokens(loghost, logname, accountKey, done) {
   leApi.getHost(loghost, gotHost);
 
   function gotHost(err, result) {
-    if (err || !result.logs) {
-      console.dir(result);
-      console.error('Could not look up host: %s', err.message);
+    if (err || !result) {
+      console.error('Could not look up host: %s', loghost);
       return leApi.registerHost(loghost, gotNewHost);
     }
     result.logs.forEach(function (log) {
