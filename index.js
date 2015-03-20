@@ -112,7 +112,6 @@ function getTokens(loghost, logname, accountKey, done) {
         tokens.stats = log.token;
       }
     });
-    console.dir(tokens);
     if (tokens.logs && tokens.stats) return cb(null);
     if (!tokens.logs) makeLog(result.key, logname, cb);
     if (!tokens.stats) makeStatsLog(result.key, logname, cb);
@@ -121,7 +120,6 @@ function getTokens(loghost, logname, accountKey, done) {
   function gotNewHost(err, result) {
     if (err) {
       console.log('gotNewHost error');
-      console.dir(err);
       return done(err);
     }
     makeLog(result.key, logname, cb);
@@ -129,7 +127,6 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function makeLog(hostKey, name, next) {
-    console.log('makeLog: %s %s', hostKey, name);
     leApi.createLog(name, "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.logs = result.token;
@@ -138,7 +135,6 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function makeStatsLog(hostKey, name, next) {
-    console.log('makeStatsLog: %s %s', hostKey, name);
     leApi.createLog(name + " stats", "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.stats = result.token;
@@ -147,7 +143,6 @@ function getTokens(loghost, logname, accountKey, done) {
   }
 
   function cb(err) {
-    console.log('cb! %s %s %j', err, stop, tokens);
     if (stop) return;
     if (err) {
       stop = true;
@@ -197,7 +192,6 @@ function cli() {
 
   if (argv.logname && argv.loghost && argv.acct) {
     getTokens(argv.loghost, argv.logname, argv.acct, function (err, tokens) {
-      console.dir(arguments);
       if (err) throw err;
       console.log('Got tokens: %s %s', tokens.logs, tokens.stats);
       argv.logstoken = tokens.logs;
