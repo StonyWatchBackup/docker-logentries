@@ -133,6 +133,7 @@ function getTokens(loghost, logname, accountKey, done) {
     leApi.createLog(name, "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.logs = result.token;
+      cb();
     });
   }
 
@@ -141,6 +142,7 @@ function getTokens(loghost, logname, accountKey, done) {
     leApi.createLog(name + " stats", "token", hostKey, function (err, result) {
       if (err) return next(err);
       tokens.stats = result.token;
+      cb();
     });
   }
 
