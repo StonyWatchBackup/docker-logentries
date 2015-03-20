@@ -109,7 +109,7 @@ function getTokens(loghost, logname, accountKey, done) {
         tokens.logs = log.token;
       }
       else if (log.name === logname + " stats") {
-        tokens.stats = log.stats;
+        tokens.stats = log.token;
       }
     });
     console.dir(tokens);
@@ -119,6 +119,7 @@ function getTokens(loghost, logname, accountKey, done) {
 
   function gotNewHost(err, result) {
     if (err) {
+      console.log('gotNewHost error');
       console.dir(err);
       return done(err);
     }
