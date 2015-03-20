@@ -137,6 +137,8 @@ function getTokens(loghost, logname, accountKey, done) {
   function makeStatsLog(hostKey, name, next) {
     console.log('makeStatsLog: %s %s', hostKey, name);
     leApi.createLog(name + " stats", "token", hostKey, function (err, result) {
+      console.log('makestatslog createlog callback');
+      console.dir(arguments);
       if (err) return next(err);
       tokens.stats = result.token;
     });
@@ -193,6 +195,7 @@ function cli() {
 
   if (argv.logname && argv.loghost && argv.acct) {
     getTokens(argv.loghost, argv.logname, argv.acct, function (err, tokens) {
+      console.dir(arguments);
       if (err) throw err;
       console.log('Got tokens: %s %s', tokens.logs, tokens.stats);
       argv.logstoken = tokens.logs;
