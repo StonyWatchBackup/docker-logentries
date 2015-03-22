@@ -17,4 +17,4 @@ USER logentries
 COPY index.js /app/
 COPY leapi.js /app/
 
-CMD ["/usr/bin/node", "/app/index.js"]
+ENTRYPOINT ["/usr/bin/node", "/app/index.js"]
