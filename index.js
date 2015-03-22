@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/node
 
 var tls = require('tls');
 var net = require('net');
