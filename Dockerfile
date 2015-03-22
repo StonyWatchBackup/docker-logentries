@@ -2,19 +2,17 @@ FROM gliderlabs/alpine
 
 RUN apk --update add nodejs
 
-RUN mkdir -p /app
-
-COPY package.json /app/
-
-WORKDIR /app
-
-RUN npm install --production
-
-RUN adduser -H -S -D -G daemon logentries
+RUN adduser -h /app -S -D -G daemon -g logentries logentries
 
 USER logentries
 
-COPY index.js /app/
-COPY leapi.js /app/
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install --production
+
+COPY index.js ./
+COPY leapi.js ./
 
 ENTRYPOINT ["/usr/bin/node", "/app/index.js"]
