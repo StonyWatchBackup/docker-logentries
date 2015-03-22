@@ -2,10 +2,6 @@ FROM gliderlabs/alpine
 
 RUN apk --update add nodejs
 
-RUN adduser -h /app -S -D -G daemon -g logentries logentries
-
-USER logentries
-
 WORKDIR /app
 
 COPY package.json ./
