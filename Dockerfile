@@ -1,9 +1,20 @@
-# docker-logentries
-#
-# VERSION 0.1.0
+FROM gliderlabs/alpine
 
-FROM node:0.12-onbuild
-MAINTAINER Matteo Collina <hello@matteocollina.com>
+RUN apk --update add nodejs
 
-ENTRYPOINT ["/usr/src/app/index.js"]
-CMD []
+RUN mkdir -p /app
+
+COPY package.json /app/
+
+WORKDIR /app
+
+RUN npm install --production
+
+RUN adduser -H -S -D -G daemon logentries
+
+USER logentries
+
+COPY index.js /app/
+COPY leapi.js /app/
+
+CMD ["/app/index.js"]
